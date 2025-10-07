@@ -1,0 +1,130 @@
+name: FoodApp
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - name: email
+        type: email
+      - name: role
+        type: choice
+        options:
+          values: [admin, user]
+        default: user
+      - name: profilePicture
+        type: image
+        options:
+          sizes:
+            thumbnail:
+              width: 100
+              height: 100
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: restricted
+          allow: User
+          condition: self
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  Recipe:
+    properties:
+      - name: title
+        type: string
+      - name: description
+        type: richText
+      - name: ingredients
+        type: text
+      - name: prepTime
+        type: number
+        helpText: 'Preparation time in minutes'
+      - name: cookTime
+        type: number
+        helpText: 'Cooking time in minutes'
+      - name: servings
+        type: number
+      - name: difficulty
+        type: choice
+        options:
+          values: [Easy, Medium, Hard]
+        default: Medium
+      - name: cuisine
+        type: choice
+        options:
+          values: [Italian, Mexican, Chinese, Indian, American, Other]
+        default: Other
+      - name: status
+        type: choice
+        options:
+          values: [draft, published]
+        default: draft
+      - name: photo
+        type: image
+        options:
+          sizes:
+            thumbnail:
+              width: 400
+              height: 300
+            large:
+              width: 800
+              height: 600
+    belongsTo:
+      - name: author
+        entity: User
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+  Review:
+    properties:
+      - name: rating
+        type: number
+      - name: comment
+        type: text
+    belongsTo:
+      - name: reviewer
+        entity: User
+      - name: recipe
+        entity: Recipe
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+
+# Health check endpoint for connection testing
+endpoints:
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
